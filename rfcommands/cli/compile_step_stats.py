@@ -35,8 +35,18 @@ from ..compile_step_stats import compile
               help     = "Name of the experiment." ,
               required = True,
               type     = click.STRING)
-def compile_step_stats(out,     cutadapt, filter, trans, 
-                       quality,   dedup,  name):
+@click.option('--label-prefix', '-l',
+              help     = "Label prefix for alignment statistics (transcriptome or genome)." ,
+              required = False,
+              default  = "transcriptome",
+              type     = click.Choice(['transcriptome', 'genome']))
+@click.option('--psite', '-p',
+              help     = "P-site count file. "
+                         "This file should only contain one number." ,
+              required = False,
+              type     = click.Path(exists = True))
+def compile_step_stats(out,     cutadapt, filter, trans,
+                       quality,   dedup,  name, label_prefix, psite):
     """
     Puts statistics coming from various steps into one file.
     
@@ -53,10 +63,12 @@ def compile_step_stats(out,     cutadapt, filter, trans,
     you can re-calculate using the counts given in these tables.
     """
 
-    compile(out      = out,
-            cutadapt = cutadapt, 
-            filter   = filter, 
-            trans    = trans, 
-            quality  = quality,  
-            dedup    = dedup,  
-            name     = name)
+    compile(out          = out,
+            cutadapt     = cutadapt,
+            filter       = filter,
+            trans        = trans,
+            quality      = quality,
+            dedup        = dedup,
+            name         = name,
+            label_prefix = label_prefix,
+            psite        = psite)

@@ -194,8 +194,8 @@ class TestMerge(TestBase):
         self.assertEqual(stats_df.loc["transcriptome_aligned_many"]["ankara"],  8603)
         self.assertEqual(stats_df.loc["transcriptome_total_aligned"]["ankara"], 64640)
         self.assertEqual(stats_df.loc["transcriptome_unaligned"]["ankara"],     8029)
-        self.assertEqual(stats_df.loc["qpass_aligned_reads"]["ankara"],         49859)
-        self.assertEqual(stats_df.loc["after_dedup"]["ankara"],                 57234)
+        self.assertEqual(stats_df.loc["transcriptome_qpass_aligned_reads"]["ankara"],         49859)
+        self.assertEqual(stats_df.loc["transcriptome_after_dedup"]["ankara"],                 57234)
         
         # TODO: Move these to a proper test later
         """
@@ -204,6 +204,37 @@ class TestMerge(TestBase):
         self.assertEqual(stats_df.loc["genome_total_aligned"]["ankara"],        1)
         self.assertEqual(stats_df.loc["genome_unaligned"]["ankara"],            8028)
         """
+
+    def test_compile_genome_prefix(self):
+        self.command = ["rfc", "compile-step-stats",
+                        "-n", "ankara",
+                        "-c", self.cutadapt_file,
+                        "-f", self.filter_file,
+                        "-t", self.transcriptome_file,
+                        "-q", self.quality_file,
+                        "-d", self.dedup_file,
+                        "-o", self.output_file,
+                        "--label-prefix", "genome"]
+                        
+        output, error = self.run_command(self.command)
+        
+        if error:
+            print(error)
+        self.assertEqual(error, "")
+        
+        stats_df = pd.read_csv(self.output_file, index_col = 0)
+        
+        self.assertEqual(stats_df.loc["total_reads"]["ankara"],                 500000)
+        self.assertEqual(stats_df.loc["clipped_reads"]["ankara"],               484302)
+        self.assertEqual(stats_df.loc["filtered_out"]["ankara"],                411633 )
+        self.assertEqual(stats_df.loc["filter_kept"]["ankara"],                 72669)
+        self.assertEqual(stats_df.loc["genome_aligned_once"]["ankara"],         56037)
+        self.assertEqual(stats_df.loc["genome_aligned_many"]["ankara"],         8603)
+        self.assertEqual(stats_df.loc["genome_total_aligned"]["ankara"],        64640)
+        self.assertEqual(stats_df.loc["genome_unaligned"]["ankara"],            8029)
+        self.assertEqual(stats_df.loc["genome_qpass_aligned_reads"]["ankara"],  49859)
+        self.assertEqual(stats_df.loc["genome_after_dedup"]["ankara"],          57234)
+
 if __name__ == '__main__':
         
     unittest.main() 
