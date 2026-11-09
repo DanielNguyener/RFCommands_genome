@@ -58,6 +58,7 @@ def genome_stats_rows(
     unique_only: bool,
     qpass_unique=None,
     dedup_unique=None,
+    tx_projection=None,
 ) -> list[tuple[str, int]]:
     total_reads, clipped_reads = parse_cutadapt_log(clip_log)
 
@@ -109,6 +110,13 @@ def genome_stats_rows(
             ("dedup_unique_alignments",        du),
             ("dedup_multi_primary_alignments", dp - du),
         ]
+    if tx_projection is not None:
+        # Distinct post-dedup reads that STAR projected onto an annotated transcript.
+        # Reads outside annotated transcripts have no projection, so this is <= dedup primary.
+        tp = read_count_file(tx_projection)
+        dp = dict(rows)["dedup_primary_alignments"]
+        _check(tp <= dp, f"{prefix}: transcriptome projection reads ({tp}) > dedup primary ({dp})")
+        rows.append(("transcriptome_projection", tp))
     return rows
 
 
