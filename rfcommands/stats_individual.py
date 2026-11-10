@@ -111,12 +111,10 @@ def genome_stats_rows(
             ("dedup_multi_primary_alignments", dp - du),
         ]
     if tx_projection is not None:
-        # Distinct post-dedup reads that STAR projected onto an annotated transcript.
-        # Reads outside annotated transcripts have no projection, so this is <= dedup primary.
-        tp = read_count_file(tx_projection)
-        dp = dict(rows)["dedup_primary_alignments"]
-        _check(tp <= dp, f"{prefix}: transcriptome projection reads ({tp}) > dedup primary ({dp})")
-        rows.append(("transcriptome_projection", tp))
+        # Distinct reads STAR projected onto an annotated transcript. Not bounded by
+        # dedup primary: without dedup the projection BAM keeps its own (looser)
+        # quality filter, so it can hold multimappers the genome count excludes.
+        rows.append(("transcriptome_projection", read_count_file(tx_projection)))
     return rows
 
 

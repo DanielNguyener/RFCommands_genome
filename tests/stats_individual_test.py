@@ -107,9 +107,11 @@ class TestStatsIndividual(TestBase):
         with open(pct) as fh:
             self.assertNotIn("transcriptome_projection_%", {r[0] for r in csv.reader(fh) if r})
 
-        # More projected reads than dedup reads is impossible and must fail loudly.
+        # A projection count above dedup primary is valid (no-dedup RNA-seq keeps
+        # multimappers the genome count drops), so it must not fail.
         o, e = self.run_command(base + ["--tx-projection-count", _count(t, "tx2", 40000)])
-        self.assertIn("transcriptome projection", e)
+        self.assertEqual(e, "", e)
+        self.assertEqual(self._rows(out)["transcriptome_projection"], 40000)
 
     def test_transcriptome(self):
         t = self.tmp
